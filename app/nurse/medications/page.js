@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import NurseLayout from "../../components/NurseLayout";
@@ -17,7 +17,7 @@ const STATUS_COLORS = {
 const ROUTE_OPTIONS = ["Oral", "IV", "IM", "SC", "Topical", "Inhalation", "Sublingual", "Rectal", "Nasal"];
 const FREQ_OPTIONS  = ["Once daily", "Twice daily", "Three times daily", "Four times daily", "Every 6 hours", "Every 8 hours", "Every 12 hours", "As needed", "Stat"];
 
-export default function MedicationsPage() {
+function MedicationsPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ipId = searchParams.get("ipId") || "";
@@ -97,13 +97,6 @@ export default function MedicationsPage() {
     }
   }
 
-  const grouped = meds.reduce((acc, m) => {
-    const k = m.medicationName || "Unknown";
-    if (!acc[k]) acc[k] = [];
-    acc[k].push(m);
-    return acc;
-  }, {});
-
   return (
     <NurseLayout>
       <div className="nurse-page space-y-6">
@@ -121,7 +114,6 @@ export default function MedicationsPage() {
           </button>
         </div>
 
-        {/* Search */}
         <div className="flex gap-3">
           <input
             type="text"
@@ -136,7 +128,6 @@ export default function MedicationsPage() {
           </button>
         </div>
 
-        {/* Add Form */}
         {showForm && (
           <form onSubmit={handleAdd} className="nurse-card p-5 space-y-4">
             <h2 className="text-sm font-semibold text-slate-800">New Medication Order</h2>
@@ -198,7 +189,6 @@ export default function MedicationsPage() {
           </form>
         )}
 
-        {/* Medication List */}
         {loading ? (
           <div className="text-center py-12 text-slate-400">Loading medications...</div>
         ) : meds.length === 0 ? (
@@ -256,3 +246,17 @@ export default function MedicationsPage() {
   );
 }
 
+export default function MedicationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="mt-3 text-sm text-slate-500">Loading medications…</p>
+        </div>
+      </div>
+    }>
+      <MedicationsPageInner />
+    </Suspense>
+  );
+}

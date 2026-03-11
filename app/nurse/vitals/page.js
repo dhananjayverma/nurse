@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import NurseLayout from "../../components/NurseLayout";
@@ -28,7 +28,7 @@ const alertLevel = (key, val) => {
   return "text-slate-700";
 };
 
-export default function VitalsPage() {
+function VitalsPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const ipId = searchParams.get("ipId") || "";
@@ -184,3 +184,17 @@ export default function VitalsPage() {
   );
 }
 
+export default function VitalsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="mt-3 text-sm text-slate-500">Loading vitals…</p>
+        </div>
+      </div>
+    }>
+      <VitalsPageInner />
+    </Suspense>
+  );
+}
